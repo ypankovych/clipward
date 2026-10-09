@@ -3,7 +3,7 @@
 # Clipward
 
 [![Latest release](https://img.shields.io/github/v/release/ypankovych/clipward)](https://github.com/ypankovych/clipward/releases/latest)
-[![Downloads](https://img.shields.io/github/downloads/ypankovych/clipward/total.svg)](https://github.com/ypankovych/clipward/releases)
+[![Downloads](https://img.shields.io/github/downloads/ypankovych/clipward/total)](https://github.com/ypankovych/clipward/releases)
 [![CI](https://github.com/ypankovych/clipward/actions/workflows/ci.yml/badge.svg)](https://github.com/ypankovych/clipward/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 ![macOS 10.13+](https://img.shields.io/badge/macOS-10.13%2B-lightgrey)
