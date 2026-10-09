@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Test
+        run: Scripts/test.sh
+
+      - name: Build app
+        run: Scripts/build-app.sh
+
+      - name: Build DMG
+        run: Scripts/make-dmg.sh
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Clipward-dmg
+          path: build/Clipward-*.dmg*
+          retention-days: 14

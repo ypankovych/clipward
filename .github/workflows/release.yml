@@ -1,0 +1,49 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Test
+        run: Scripts/test.sh
+
+      - name: Build app and DMG
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: |
+          export VERSION="${VERSION#v}"
+          Scripts/build-app.sh
+          Scripts/make-dmg.sh
+
+      - name: Extract release notes
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          awk -v v="$version" '
+            $0 ~ "^## \\[" v "\\]" { found = 1; next }
+            found && /^## \[/ { exit }
+            found && /^\[.*\]: / { exit }
+            found { print }
+          ' CHANGELOG.md > build/notes.md
+          cat >> build/notes.md <<'EOF'
+
+          ### Install
+
+          Download **Clipward-*.dmg** below, open it and drag Clipward into Applications.
+          The app isn't notarized yet; see [Install](https://github.com/ypankovych/clipward#install) for how to open it the first time.
+          EOF
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" build/Clipward-*.dmg build/Clipward-*.dmg.sha256 \
+            --title "Clipward ${GITHUB_REF_NAME#v}" --notes-file build/notes.md
