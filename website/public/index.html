@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clipward: private clipboard manager for macOS</title>
+  <meta name="description" content="Clipward keeps a searchable history of everything you copy on your Mac, encrypts it on disk, and clears pasted items from the clipboard after a minute. Free and open source, for macOS 10.13 and later.">
+  <meta name="theme-color" content="#2d2a6e">
+  <link rel="icon" type="image/png" href="/assets/favicon-64.png">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+  <link rel="canonical" href="https://clipward.dev/">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://clipward.dev/">
+  <meta property="og:title" content="Clipward: private clipboard manager for macOS">
+  <meta property="og:description" content="Encrypted clipboard history, an auto-clearing clipboard, and every data type. Free and open source, for macOS 10.13 and later.">
+  <meta property="og:image" content="https://clipward.dev/assets/og-image.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css?v=1">
+</head>
+<body>
+
+<!-- ============ The desktop: hero + live demo ============ -->
+<section class="desktop" id="top" aria-label="Clipward demo on a Mac desktop">
+  <div class="wallpaper" aria-hidden="true">
+    <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMax slice">
+      <defs>
+        <radialGradient id="sun" cx="72%" cy="38%" r="40%">
+          <stop offset="0" stop-color="#ffd1b8" stop-opacity=".95"/>
+          <stop offset=".35" stop-color="#f29bbd" stop-opacity=".55"/>
+          <stop offset="1" stop-color="#f29bbd" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#1b1f5e"/>
+          <stop offset=".55" stop-color="#4a3a9c"/>
+          <stop offset="1" stop-color="#8a5bb8"/>
+        </linearGradient>
+        <linearGradient id="d1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5b4bb5"/><stop offset="1" stop-color="#2b2670"/></linearGradient>
+        <linearGradient id="d2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3b3594"/><stop offset="1" stop-color="#1c1a52"/></linearGradient>
+        <linearGradient id="d3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#262470"/><stop offset="1" stop-color="#121238"/></linearGradient>
+      </defs>
+      <rect width="1440" height="900" fill="url(#sky)"/>
+      <rect width="1440" height="900" fill="url(#sun)"/>
+      <path d="M0 560 C 240 470 420 520 640 500 S 1080 420 1440 470 V900 H0Z" fill="url(#d1)" opacity=".9"/>
+      <path d="M0 650 C 200 600 470 640 720 610 S 1180 560 1440 600 V900 H0Z" fill="url(#d2)"/>
+      <path d="M0 760 C 300 700 560 760 860 720 S 1260 690 1440 720 V900 H0Z" fill="url(#d3)"/>
+    </svg>
+  </div>
+
+  <!-- Menu bar -->
+  <header class="menubar" role="banner">
+    <nav class="menubar-left" aria-label="Site">
+      <a class="menubar-app" href="#top">Clipward</a>
+      <a href="#features">Features</a>
+      <a href="#install">Install</a>
+      <a href="https://github.com/ypankovych/clipward">GitHub</a>
+    </nav>
+    <div class="menubar-right">
+      <span class="clear-timer" id="clearTimer" hidden></span>
+      <button class="status-item" id="statusItem" type="button" aria-haspopup="dialog" aria-controls="clipPanel" title="Clipward (⌥⌘C)">
+        <svg viewBox="0 0 18 18" aria-hidden="true"><rect x="3.5" y="2.5" width="11" height="13.5" rx="2" fill="none" stroke="currentColor" stroke-width="1.4"/><rect x="6" y="1" width="6" height="3" rx="1" fill="currentColor"/><path d="M6.5 8h5M6.5 11h5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        <span class="visually-hidden">Open clipboard history</span>
+      </button>
+      <time class="menubar-clock" id="clock"></time>
+    </div>
+  </header>
+
+  <div class="desk">
+    <!-- About window: the hero -->
+    <article class="window about" aria-labelledby="hero-title">
+      <div class="titlebar"><span class="lights" aria-hidden="true"><i></i><i></i><i></i></span></div>
+      <div class="about-body">
+        <img class="about-icon" src="/assets/icon-256.png" width="112" height="112" alt="">
+        <h1 id="hero-title">Clipward</h1>
+        <p class="lede">Clipboard history for your Mac that encrypts what it keeps and forgets what it should.</p>
+        <a class="push-button default" id="downloadHero" href="https://github.com/ypankovych/clipward/releases/latest">Download for Mac</a>
+        <p class="about-meta"><span id="versionLabel">Version 1.0.0</span><br>Free and open source<br>macOS 10.13 or later</p>
+        <a class="quiet-link" href="https://github.com/ypankovych/clipward">View the source on GitHub</a>
+      </div>
+    </article>
+
+    <!-- Scratchpad window: things to copy and a place to paste -->
+    <article class="window scratch" aria-labelledby="scratch-title">
+      <div class="titlebar"><span class="lights" aria-hidden="true"><i></i><i></i><i></i></span><h2 class="window-title" id="scratch-title">Scratchpad</h2></div>
+      <div class="scratch-body">
+        <p class="scratch-intro">Copy a few things, then press <kbd>⌥</kbd><kbd>⌘</kbd><kbd>C</kbd> to bring them back.</p>
+        <ul class="snippets">
+          <li>
+            <span class="snippet-label">Address</span>
+            <span class="snippet-value" data-copyable>221B Baker Street, London</span>
+            <button class="copy" type="button" data-kind="text" data-app="Maps" data-value="221B Baker Street, London">Copy</button>
+          </li>
+          <li>
+            <span class="snippet-label">API token</span>
+            <code class="snippet-value" data-copyable>demo_token_7Hq2Lyj9WDarT1zdpX</code>
+            <button class="copy" type="button" data-kind="text" data-app="Terminal" data-value="demo_token_7Hq2Lyj9WDarT1zdpX">Copy</button>
+          </li>
+          <li>
+            <span class="snippet-label">Brand color</span>
+            <span class="snippet-value"><span class="swatch" style="--c:#5e5ce6"></span>#5E5CE6</span>
+            <button class="copy" type="button" data-kind="color" data-app="Digital Color Meter" data-value="#5E5CE6">Copy</button>
+          </li>
+          <li>
+            <span class="snippet-label">Photo</span>
+            <span class="snippet-value"><span class="thumb" aria-hidden="true"></span>dusk.png</span>
+            <button class="copy" type="button" data-kind="image" data-app="Preview" data-value="Image  1600 × 1000">Copy</button>
+          </li>
+          <li class="secret">
+            <span class="snippet-label">Password</span>
+            <span class="snippet-value">••••••••••••</span>
+            <button class="copy" type="button" data-kind="concealed" data-app="Passwords">Copy</button>
+          </li>
+        </ul>
+        <div class="paste-area" id="pasteArea" aria-live="polite">
+          <p class="paste-empty">Pasted items appear here.</p>
+        </div>
+        <button class="push-button open-history" id="openHistory" type="button">Open history</button>
+      </div>
+    </article>
+
+    <!-- Desktop file: the DMG -->
+    <a class="desktop-file" id="downloadFile" href="https://github.com/ypankovych/clipward/releases/latest">
+      <span class="dmg-icon" aria-hidden="true"><img src="/assets/icon-256.png" alt="" width="40" height="40"></span>
+      <span class="desktop-file-name" id="dmgName">Clipward-1.0.0.dmg</span>
+    </a>
+  </div>
+
+  <!-- The Clipward popup, recreated -->
+  <div class="clip-panel" id="clipPanel" role="dialog" aria-modal="true" aria-label="Clipboard history" hidden>
+    <div class="clip-search">
+      <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m13 13 4.5 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      <input id="clipSearch" type="text" placeholder="Search clipboard history" autocomplete="off" spellcheck="false" aria-controls="clipList" aria-label="Search clipboard history">
+    </div>
+    <ul class="clip-list" id="clipList" role="listbox" aria-label="Copied items"></ul>
+    <p class="clip-empty" id="clipEmpty" hidden></p>
+    <div class="clip-footer">
+      <span><kbd>↩</kbd> Paste</span><span><kbd>⇧↩</kbd> Paste as plain text</span><span><kbd>⌘⌫</kbd> Delete</span>
+    </div>
+  </div>
+
+  <!-- macOS-style notification banner -->
+  <div class="notification" id="notification" role="status" aria-live="polite" hidden>
+    <img src="/assets/icon-256.png" alt="" width="36" height="36">
+    <div><strong id="notificationTitle">Clipward</strong><p id="notificationBody"></p></div>
+  </div>
+</section>
+
+<main>
+  <!-- ============ Features as a settings window ============ -->
+  <section class="features" id="features" aria-labelledby="features-title">
+    <div class="section-head">
+      <h2 id="features-title">Small app, careful defaults</h2>
+      <p>Clipward stays out of the way in the menu bar. Everything it does to protect what you copy is switched on from the first launch.</p>
+    </div>
+
+    <div class="window settings">
+      <div class="titlebar"><span class="lights" aria-hidden="true"><i></i><i></i><i></i></span><span class="window-title">Clipward</span></div>
+      <div class="settings-body">
+        <div class="sidebar" role="tablist" aria-orientation="vertical" aria-label="Features">
+          <button role="tab" id="tab-clear" aria-controls="pane-clear" aria-selected="true"><span class="side-icon" style="--c:#ff9f0a"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="8" cy="9" r="5.5"/><path d="M8 6v3l2 1.5M6.5 1.5h3"/></svg></span>Auto-clear</button>
+          <button role="tab" id="tab-encrypt" aria-controls="pane-encrypt" aria-selected="false" tabindex="-1"><span class="side-icon" style="--c:#0a84ff"><svg viewBox="0 0 16 16"><rect x="3" y="7" width="10" height="7.5" rx="1.5" fill="currentColor"/><path d="M5.2 7V5a2.8 2.8 0 0 1 5.6 0v2" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></span>Encryption</button>
+          <button role="tab" id="tab-secrets" aria-controls="pane-secrets" aria-selected="false" tabindex="-1"><span class="side-icon" style="--c:#ff375f"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="5.5" cy="8" r="3"/><path d="M8.5 8h6M12.5 8v2.5M14.5 8v2"/></svg></span>Passwords</button>
+          <button role="tab" id="tab-types" aria-controls="pane-types" aria-selected="false" tabindex="-1"><span class="side-icon" style="--c:#30d158"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M8 2 14 5 8 8 2 5z"/><path d="M2 8l6 3 6-3M2 11l6 3 6-3"/></svg></span>Every format</button>
+          <button role="tab" id="tab-keys" aria-controls="pane-keys" aria-selected="false" tabindex="-1"><span class="side-icon" style="--c:#8e8e93"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 6V4.5A1.5 1.5 0 1 0 4.5 6H6zm0 0h4m-4 0v4m4-4V4.5A1.5 1.5 0 1 1 11.5 6H10zm0 0v4m0 0h1.5a1.5 1.5 0 1 1-1.5 1.5V10zm0 0H6m0 0v1.5A1.5 1.5 0 1 1 4.5 10H6z"/></svg></span>Keyboard</button>
+          <button role="tab" id="tab-macs" aria-controls="pane-macs" aria-selected="false" tabindex="-1"><span class="side-icon" style="--c:#bf5af2"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><rect x="3" y="3" width="10" height="7" rx="1"/><path d="M1.5 13h13"/></svg></span>Older Macs</button>
+        </div>
+
+        <div class="pane" role="tabpanel" id="pane-clear" aria-labelledby="tab-clear">
+          <h3>Pasted items don't linger</h3>
+          <p>When you paste something from your history, Clipward takes it back off the clipboard a minute later, so a token you pasted once isn't sitting there for the next app to read. If you copy something new in the meantime, that stays.</p>
+          <div class="form-row"><label for="demoClear">Clear clipboard</label>
+            <select id="demoClear"><option>Never</option><option>After 15 seconds</option><option>After 30 seconds</option><option selected>After 1 minute</option><option>After 2 minutes</option><option>After 5 minutes</option><option>After 10 minutes</option></select>
+          </div>
+        </div>
+
+        <div class="pane" role="tabpanel" id="pane-encrypt" aria-labelledby="tab-encrypt" hidden>
+          <h3>Encrypted on disk, key in your Keychain</h3>
+          <p>Every item is stored with AES-256 and an HMAC-SHA256 seal, in files only your user account can read, excluded from Time Machine. The key lives in your login Keychain. If the Keychain isn't available, history stays in memory and is never written as plain text.</p>
+          <pre class="hexdump" aria-label="Example of an encrypted history file">~/Library/Application Support/Clipward/History
+<b>4F2A…91C3.data</b>  01 9c 3e f1 7a 0d 52 b8 e4 21 6f a9 c0 33 8e 17
+                   d5 4b 90 2c ee 61 08 f7 3a b5 1d 72 c4 9e 26 5f</pre>
+        </div>
+
+        <div class="pane" role="tabpanel" id="pane-secrets" aria-labelledby="tab-secrets" hidden>
+          <h3>Passwords are never recorded</h3>
+          <p>Password managers mark the passwords they copy as concealed. Clipward respects that marker, so copies from 1Password, Bitwarden, KeePassXC, the Passwords app and others never reach your history. You can also ignore any app entirely, or pause recording from the menu bar.</p>
+          <ul class="app-list">
+            <li>Keychain Access</li><li>Passwords</li><li>1Password</li><li>Bitwarden</li>
+          </ul>
+        </div>
+
+        <div class="pane" role="tabpanel" id="pane-types" aria-labelledby="tab-types" hidden>
+          <h3>Comes back exactly as you copied it</h3>
+          <p>Clipward keeps every format an app puts on the clipboard, not just the text. Formatted text keeps its formatting, images stay images, and copied files paste as files. Hold <kbd>⇧</kbd> when you paste to drop the formatting.</p>
+          <ul class="type-list">
+            <li>Plain and rich text</li><li>Links</li><li>Images</li><li>Files and folders</li><li>Colors</li><li>App-specific data</li>
+          </ul>
+        </div>
+
+        <div class="pane" role="tabpanel" id="pane-keys" aria-labelledby="tab-keys" hidden>
+          <h3>Built for the keyboard</h3>
+          <table class="keys">
+            <tbody>
+              <tr><td><kbd>⌥</kbd><kbd>⌘</kbd><kbd>C</kbd></td><td>Open history (choose your own shortcut in Settings)</td></tr>
+              <tr><td>Type</td><td>Search everything you've copied</td></tr>
+              <tr><td><kbd>↩</kbd></td><td>Paste into the app you were using</td></tr>
+              <tr><td><kbd>⇧</kbd><kbd>↩</kbd></td><td>Paste as plain text</td></tr>
+              <tr><td><kbd>⌘</kbd><kbd>1</kbd>–<kbd>9</kbd></td><td>Paste one of the first nine items</td></tr>
+              <tr><td><kbd>⌘</kbd><kbd>⌫</kbd></td><td>Delete an item</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pane" role="tabpanel" id="pane-macs" aria-labelledby="tab-macs" hidden>
+          <h3>Runs on the Mac you already have</h3>
+          <p>One download works on Apple silicon and Intel, from macOS High Sierra in 2017 to the current release. No third-party dependencies, no network access, no account.</p>
+          <ol class="timeline" aria-label="Supported macOS versions">
+            <li>10.13 High Sierra</li><li>10.14 Mojave</li><li>10.15 Catalina</li><li>11 Big Sur</li><li>12 Monterey</li><li>13 Ventura</li><li>14 Sonoma</li><li>15 and later</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ Install ============ -->
+  <section class="install" id="install" aria-labelledby="install-title">
+    <div class="section-head">
+      <h2 id="install-title">Install in a minute</h2>
+    </div>
+    <ol class="steps">
+      <li><h3>Download</h3><p>Get <a id="downloadStep" href="https://github.com/ypankovych/clipward/releases/latest">the latest DMG</a> from GitHub releases.</p></li>
+      <li><h3>Drag to Applications</h3><p>Open the DMG and drag Clipward into your Applications folder.</p></li>
+      <li><h3>Open it once</h3><p>Clipward isn't notarized by Apple yet. The first time, open it, then go to System Settings › Privacy &amp; Security and click <em>Open Anyway</em>. On macOS 14 and earlier, right-click the app and choose <em>Open</em>.</p></li>
+    </ol>
+    <p class="install-note">To paste straight into other apps, allow Clipward under Privacy &amp; Security › Accessibility. Without it, Clipward copies the item and you press <kbd>⌘</kbd><kbd>V</kbd> yourself.</p>
+    <div class="install-cta">
+      <a class="push-button default large" id="downloadBottom" href="https://github.com/ypankovych/clipward/releases/latest">Download for Mac</a>
+      <a class="push-button large" href="https://github.com/ypankovych/clipward">Source code</a>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <p>Clipward is free software under the <a href="https://github.com/ypankovych/clipward/blob/main/LICENSE">MIT license</a>, made by <a href="https://github.com/ypankovych">Yaroslav Pankovych</a>.</p>
+  <p><a href="https://github.com/ypankovych/clipward/blob/main/SECURITY.md">Report a security issue</a> <a href="https://github.com/ypankovych/clipward/issues">Report a bug</a> <a href="https://github.com/ypankovych/clipward/blob/main/CHANGELOG.md">Changelog</a></p>
+</footer>
+
+<script src="/app.js?v=1" defer></script>
+</body>
+</html>

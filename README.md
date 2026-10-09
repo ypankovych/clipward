@@ -7,7 +7,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 ![macOS 10.13+](https://img.shields.io/badge/macOS-10.13%2B-lightgrey)
 
-Clipward is a small, private clipboard manager for macOS. It remembers everything you copy
+Clipward is a small, private clipboard manager for macOS. Try the live demo at **[clipward.dev](https://clipward.dev)**. It remembers everything you copy
 (text, images, files, colors, anything) and brings it back with <kbd>⌥ Option</kbd> + <kbd>⌘ Command</kbd> + <kbd>C</kbd>.
 
 It is built for people who copy passwords, tokens and other secrets: history is encrypted on disk,
@@ -195,6 +195,7 @@ newer systems ignore it.
 | `Sources/Clipward` | The app: hot key, login item, menu bar item, history popup, settings window |
 | `Tests/ClipwardCoreTests` | Test runner for the core, run with `Scripts/test.sh` |
 | `Scripts` | Build, DMG, icon and screenshot scripts |
+| `website` | The [clipward.dev](https://clipward.dev) site with the in-browser demo; `website/deploy.sh` publishes it |
 
 ## Contributing
 
